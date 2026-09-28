@@ -1,1 +1,217 @@
 This is payment file on dev branch
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+// Base class representing a generic Library Item
+abstract class LibraryItem {
+    private String id;
+    private String title;
+    private boolean isCheckedOut;
+
+    public LibraryItem(String id, String title) {
+        this.id = id;
+        this.title = title;
+        this.isCheckedOut = false;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public boolean isCheckedOut() {
+        return isCheckedOut;
+    }
+
+    public void setCheckedOut(boolean checkedOut) {
+        isCheckedOut = checkedOut;
+    }
+
+    public abstract void displayInfo();
+}
+
+// Book class inheriting from LibraryItem
+class Book extends LibraryItem {
+    private String author;
+    private int pageCount;
+
+    public Book(String id, String title, String author, int pageCount) {
+        super(id, title);
+        this.author = author;
+        this.pageCount = pageCount;
+    }
+
+    @Override
+    public void displayInfo() {
+        System.out.println("[Book] ID: " + getId() + 
+                           " | Title: " + getTitle() + 
+                           " | Author: " + author + 
+                           " | Pages: " + pageCount + 
+                           " | Status: " + (isCheckedOut() ? "Checked Out" : "Available"));
+    }
+}
+
+// Magazine class inheriting from LibraryItem
+class Magazine extends LibraryItem {
+    private int issueNumber;
+    private String releaseDate;
+
+    public Magazine(String id, String title, int issueNumber, String releaseDate) {
+        super(id, title);
+        this.issueNumber = issueNumber;
+        this.releaseDate = releaseDate;
+    }
+
+    @Override
+    public void displayInfo() {
+        System.out.println("[Magazine] ID: " + getId() + 
+                           " | Title: " + getTitle() + 
+                           " | Issue: " + issueNumber + 
+                           " | Date: " + releaseDate + 
+                           " | Status: " + (isCheckedOut() ? "Checked Out" : "Available"));
+    }
+}
+
+// Library Manager to handle collection of items
+class Library {
+    private List<LibraryItem> items = new ArrayList<>();
+
+    public void addItem(LibraryItem item) {
+        items.add(item);
+        System.out.println("Added successfully: " + item.getTitle());
+    }
+
+    public void displayAllItems() {
+        if (items.isEmpty()) {
+            System.out.println("The library is currently empty.");
+            return;
+        }
+        System.out.println("\n--- Library Inventory ---");
+        for (LibraryItem item : items) {
+            item.displayInfo();
+        }
+    }
+
+    public void checkOutItem(String id) {
+        LibraryItem item = findItemById(id);
+        if (item != null) {
+            if (!item.isCheckedOut()) {
+                item.setCheckedOut(true);
+                System.out.println("You have successfully checked out: " + item.getTitle());
+            } else {
+                System.out.println("Sorry, this item is already checked out.");
+            }
+        } else {
+            System.out.println("Item with ID " + id + " not found.");
+        }
+    }
+
+    public void returnItem(String id) {
+        LibraryItem item = findItemById(id);
+        if (item != null) {
+            if (item.isCheckedOut()) {
+                item.setCheckedOut(false);
+                System.out.println("You have successfully returned: " + item.getTitle());
+            } else {
+                System.out.println("This item was not checked out.");
+            }
+        } else {
+            System.out.println("Item with ID " + id + " not found.");
+        }
+    }
+
+    private LibraryItem findItemById(String id) {
+        for (LibraryItem item : items) {
+            if (item.getId().equalsIgnoreCase(id)) {
+                return item;
+            }
+        }
+        return null;
+    }
+}
+
+// Main execution class
+public class Main {
+    public static void main(String[] args) {
+        Library library = new Library();
+        Scanner scanner = new Scanner(System.in);
+
+        // Preload some default items
+        library.addItem(new Book("B001", "Clean Code", "Robert C. Martin", 464));
+        library.addItem(new Book("B002", "The Pragmatic Programmer", "Andrew Hunt", 352));
+        library.addItem(new Magazine("M001", "Tech Monthly", 42, "September 2026"));
+
+        boolean running = true;
+        while (running) {
+            System.out.println("\n=== Library Menu ===");
+            System.out.println("1. Display All Items");
+            System.out.println("2. Add a New Book");
+            System.out.println("3. Add a New Magazine");
+            System.out.println("4. Check Out Item");
+            System.out.println("5. Return Item");
+            System.out.println("6. Exit");
+            System.out.print("Choose an option (1-6): ");
+
+            int choice;
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+                scanner.nextLine(); // consume newline
+            } else {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.nextLine();
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    library.displayAllItems();
+                    break;
+                case 2:
+                    System.out.print("Enter Book ID: ");
+                    String bId = scanner.nextLine();
+                    System.out.print("Enter Title: ");
+                    String bTitle = scanner.nextLine();
+                    System.out.print("Enter Author: ");
+                    String bAuthor = scanner.nextLine();
+                    System.out.print("Enter Page Count: ");
+                    int bPages = scanner.nextInt();
+                    scanner.nextLine();
+                    library.addItem(new Book(bId, bTitle, bAuthor, bPages));
+                    break;
+                case 3:
+                    System.out.print("Enter Magazine ID: ");
+                    String mId = scanner.nextLine();
+                    System.out.print("Enter Title: ");
+                    String mTitle = scanner.nextLine();
+                    System.*out*.print("Enter Issue Number: ");
+                    int mIssue = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.print("Enter Release Date: ");
+                    String mDate = scanner.nextLine();
+                    library.addItem(new Magazine(mId, mTitle, mIssue, mDate));
+                    break;
+                case 4:
+                    System.out.print("Enter Item ID to check out: ");
+                    String coId = scanner.nextLine();
+                    library.checkOutItem(coId);
+                    break;
+                case 5:
+                    System.out.print("Enter Item ID to return: ");
+                    String retId = scanner.nextLine();
+                    library.returnItem(retId);
+                    break;
+                case 6:
+                    running = false;
+                    System.out.println("Exiting application. Goodbye!");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Choose between 1 and 6.");
+            }
+        }
+        scanner.close();
+    }
+}
